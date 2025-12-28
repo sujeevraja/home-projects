@@ -13,7 +13,7 @@
 
 # --- Configuration ---
 # Path to the directory containing the frame control Python script
-REPO_PATH="/home/sujeev/Desktop/samsung-photo-frame-ctrl"
+REPO_PATH="/home/sujeev/Desktop/home-projects"
 
 # Path to the folder where your NAS is mounted
 PHOTO_DIR="/home/sujeev/Desktop/qnap_photos"
@@ -38,7 +38,7 @@ echo "Starting slideshow... Press [CTRL+C] to stop."
 while true; do
     # 'find' looks into all subfolders (-recursive is default)
     # '-iregex' makes it case-insensitive for various extensions
-    find "$PHOTO_DIR" -type f -iregex '.*\.\(jpg\|jpeg\|png\|heif\)' | while read -r file; do
+    find "$PHOTO_DIR" -type f -iregex '.*\.\(jpg\|jpeg\|png\|heif\)' | shuf | while read -r file; do
         
         echo "Displaying: $(basename "$file")"
 
@@ -46,11 +46,18 @@ while true; do
         cat "$file" | \
         convert - \
 	-auto-orient \
+	-colorspace sRGB \
 	-resize 800x600 \
 	-background black \
 	-gravity center \
-	-extent 800x600 jpeg:- | \
-        sudo python3 "$REPO_PATH/frame-ctrl.py" -
+	-extent 800x600 \
+	-strip \
+	-interlace none \
+	-define jpeg:extent=64kb \
+       	jpeg:- | \
+	tee /tmp/transfer.jpg | \
+        sudo python3 "$REPO_PATH/frame-ctrl.py" - && \
+	echo "Transferred size: $(wc -c < /tmp/transfer.jpg) bytes"
 
 	# Wait before showing the next photo
         sleep "$INTERVAL"
