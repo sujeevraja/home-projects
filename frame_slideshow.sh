@@ -19,7 +19,7 @@ REPO_PATH="/home/sujeev/Desktop/home-projects"
 PHOTO_DIR="/home/sujeev/Desktop/qnap_photos"
 
 # Time in seconds to display each image
-INTERVAL=15
+INTERVAL=7
 
 # --- Validation ---
 if [ ! -d "$REPO_PATH" ]; then
